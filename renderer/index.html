@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+<title>Dominant Bot Manager</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-drag">
+      <span class="titlebar-title">Dominant Bot Manager</span>
+    </div>
+    <div class="titlebar-controls">
+      <button id="winMin" class="titlebar-btn" title="Свернуть">
+        <svg width="10" height="10" viewBox="0 0 10 10"><rect y="4.5" width="10" height="1" fill="currentColor"/></svg>
+      </button>
+      <button id="winMax" class="titlebar-btn" title="Развернуть">
+        <svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor"/></svg>
+      </button>
+      <button id="winClose" class="titlebar-btn titlebar-close" title="Закрыть">
+        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M0 0 L10 10 M10 0 L0 10" stroke="currentColor" stroke-width="1.1"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <section class="panel server-panel">
+      <div class="field">
+        <label for="host">Адрес сервера</label>
+        <input id="host" type="text" placeholder="play.example.com" />
+      </div>
+      <div class="field field-small">
+        <label for="port">Порт</label>
+        <input id="port" type="text" placeholder="25565" />
+      </div>
+      <div class="field field-small">
+        <label for="version">Версия</label>
+        <input id="version" type="text" placeholder="авто" />
+      </div>
+      <button id="pingBtn" class="btn btn-secondary">Проверить сеть / пинг</button>
+      <span id="pingResult" class="ping-result"></span>
+    </section>
+
+    <section class="panel broadcast-panel">
+      <input id="broadcastInput" type="text" placeholder="Сообщение сразу всем подключённым аккаунтам..." />
+      <button id="broadcastBtn" class="btn btn-primary">Отправить всем</button>
+    </section>
+
+    <section class="panel convoy-panel">
+      <div class="field">
+        <label for="convoyLeader">Игрок, за которым следовать</label>
+        <input id="convoyLeader" type="text" placeholder="Ник игрока" />
+      </div>
+      <button id="convoyStartBtn" class="btn btn-primary">Начать конвой</button>
+      <button id="convoyStopBtn" class="btn btn-secondary">Остановить</button>
+      <span id="convoyResult" class="ping-result"></span>
+    </section>
+
+    <section class="panel macro-panel">
+      <div class="macro-panel-header">Макросы всем (ЛКМ — отправить, ПКМ — назначить)</div>
+      <div id="globalMacroGrid" class="macro-grid"></div>
+    </section>
+
+    <main id="slots" class="slots"></main>
+  </div>
+
+  <div id="macroEditOverlay" class="macro-edit-overlay" hidden>
+    <div class="macro-edit-box">
+      <div class="macro-edit-title">Команда макроса</div>
+      <div class="macro-edit-hint">Сообщение в чат или /команда сервера</div>
+      <input id="macroEditInput" type="text" maxlength="256" />
+      <div class="macro-edit-actions">
+        <button id="macroEditSave" class="btn btn-primary">Сохранить</button>
+        <button id="macroEditClear" class="btn btn-secondary">Очистить</button>
+        <button id="macroEditCancel" class="btn btn-secondary">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <template id="slot-template">
+    <div class="slot" data-slot="">
+      <div class="slot-header">
+        <span class="slot-title"></span>
+        <span class="status-wrap">
+          <span class="status-dot status-dot-offline"></span>
+          <span class="status-badge status-offline">Оффлайн</span>
+          <button class="slot-remove-btn" title="Удалить аккаунт">&times;</button>
+        </span>
+      </div>
+
+      <div class="slot-fields">
+        <div class="field">
+          <label>Ник</label>
+          <input class="username-input" type="text" placeholder="Steve" />
+        </div>
+        <div class="field field-small">
+          <label>Тип входа</label>
+          <select class="auth-select">
+            <option value="offline">Offline</option>
+            <option value="microsoft">Microsoft</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="checkbox-label">
+        <input type="checkbox" class="proxy-enabled" />
+        Использовать прокси для этого аккаунта
+      </label>
+
+      <div class="proxy-fields" hidden>
+        <div class="slot-fields">
+          <div class="field field-small">
+            <label>Тип</label>
+            <select class="proxy-type">
+              <option value="socks5">SOCKS5</option>
+              <option value="socks4">SOCKS4</option>
+              <option value="http">HTTP</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Хост прокси</label>
+            <input class="proxy-host" type="text" placeholder="1.2.3.4" />
+          </div>
+          <div class="field field-small">
+            <label>Порт</label>
+            <input class="proxy-port" type="text" placeholder="1080" />
+          </div>
+        </div>
+        <div class="slot-fields">
+          <div class="field">
+            <label>Логин (опц.)</label>
+            <input class="proxy-user" type="text" />
+          </div>
+          <div class="field">
+            <label>Пароль (опц.)</label>
+            <input class="proxy-pass" type="password" />
+          </div>
+        </div>
+        <div class="proxy-check-row">
+          <button class="btn btn-secondary proxy-check-btn">Проверить прокси (IP)</button>
+          <span class="proxy-check-result"></span>
+        </div>
+      </div>
+
+      <div class="slot-actions">
+        <button class="btn btn-primary connect-btn">Подключить</button>
+        <button class="btn btn-danger disconnect-btn" disabled>Отключить</button>
+      </div>
+
+      <div class="macro-grid slot-macro-grid"></div>
+
+      <div class="log-box"></div>
+
+      <div class="chat-row">
+        <input class="chat-input" type="text" placeholder="Сообщение в чат от этого аккаунта..." disabled />
+        <button class="btn btn-secondary send-btn" disabled>&gt;</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

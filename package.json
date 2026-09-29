@@ -1,0 +1,62 @@
+{
+  "name": "mc-bot-manager",
+  "version": "1.0.0",
+  "description": "Панель управления ботами Minecraft (до 3 аккаунтов одновременно)",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "https-proxy-agent": "^9.1.0",
+    "minecraft-protocol": "^1.47.0",
+    "mineflayer": "^4.24.0",
+    "mineflayer-pathfinder": "^2.4.5",
+    "socks": "^2.8.10",
+    "socks-proxy-agent": "^10.1.0"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.4"
+  },
+  "build": {
+    "appId": "com.mcbotmanager.app",
+    "productName": "Dominant Bot Manager",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "build-assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
